@@ -1,0 +1,46 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collected 121 items
+
+tests\integration\test_api.py .......                                    [  5%]
+tests\integration\test_text_length_validation.py ..                      [  7%]
+tests\unit\api\test_tts_router.py ...                                    [  9%]
+tests\unit\api\test_tts_validator.py ...                                 [ 12%]
+tests\unit\cache\test_error_handling.py ..........                       [ 20%]
+tests\unit\kokoro\test_audio_generator.py ......                         [ 25%]
+tests\unit\kokoro\test_model_handler.py .....                            [ 29%]
+tests\unit\kokoro\test_provider.py ........                              [ 36%]
+tests\unit\kokoro\test_voice_manager.py ......                           [ 41%]
+tests\unit\test_cache.py .......                                         [ 47%]
+tests\unit\test_cache_components.py ....                                 [ 50%]
+tests\unit\test_kokoro_provider.py .......                               [ 56%]
+tests\unit\test_no_providers_available.py .....                          [ 60%]
+tests\unit\test_tts_service.py .....                                     [ 64%]
+tests\unit\test_tts_service_provider_handling.py .......                 [ 70%]
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py ...... [ 75%]
+....                                                                     [ 78%]
+tests\unit\tts_service\infrastructure\cache\test_eviction_policy.py .... [ 81%]
+..                                                                       [ 83%]
+tests\unit\tts_service\infrastructure\cache\test_file_storage.py ....... [ 89%]
+                                                                         [ 89%]
+tests\unit\tts_service\infrastructure\cache\test_metadata_manager.py ... [ 91%]
+..........                                                               [100%]
+
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 121 passed, 4 warnings in 2.40s =======================

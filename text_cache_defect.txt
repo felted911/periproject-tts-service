@@ -1,0 +1,39 @@
+c:\Projects\peritest\python\venv\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0 -- C:\Projects\peritest\python\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+tests/unit/test_cache.py::test_cache_set_get PASSED                      [ 14%]
+tests/unit/test_cache.py::test_cache_delete PASSED                       [ 28%]
+tests/unit/test_cache.py::test_cache_clear PASSED                        [ 42%]
+tests/unit/test_cache.py::test_cache_stats PASSED                        [ 57%]
+tests/unit/test_cache.py::test_cache_expiration PASSED                   [ 71%]
+tests/unit/test_cache.py::test_cache_ensure_size PASSED                  [ 85%]
+tests/unit/test_cache.py::test_cache_disabled PASSED                     [100%]
+
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+tests/unit/test_cache.py::test_cache_expiration
+tests/unit/test_cache.py::test_cache_ensure_size
+  C:\Projects\peritest\python\venv\Lib\site-packages\_pytest\stash.py:108: RuntimeWarning: coroutine 'MetadataManager.load' was never awaited
+    del self._storage[key]
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 7 passed, 4 warnings in 1.21s ========================

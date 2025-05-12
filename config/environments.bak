@@ -1,0 +1,2 @@
+# Environment-specific configurations
+# These settings will be loaded based on the ENVIRONMENT variable

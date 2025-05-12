@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# A pre-push hook to ensure all tests pass before pushing to the repository
+# To install:
+# 1. Copy this file to .git/hooks/pre-push
+# 2. Make it executable: chmod +x .git/hooks/pre-push
+
+echo "Running tests before push..."
+python -m pytest
+
+# Check the exit code
+if [ $? -ne 0 ]; then
+    echo "Tests failed! Please fix the failing tests before pushing."
+    exit 1
+fi
+
+echo "All tests passed. Proceeding with push."
+exit 0

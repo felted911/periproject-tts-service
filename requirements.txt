@@ -1,0 +1,19 @@
+# Core dependencies
+fastapi>=0.103.1
+uvicorn>=0.23.2
+pydantic>=2.3.0
+python-multipart>=0.0.6
+numpy>=1.25.2
+soundfile>=0.12.1
+requests>=2.31.0
+aiofiles>=23.1.0
+
+# Kokoro TTS dependencies
+kokoro-onnx>=0.4.8
+tqdm>=4.66.0
+
+# Logging
+loguru>=0.7.0
+
+# For setup.py
+setuptools>=67.8.0

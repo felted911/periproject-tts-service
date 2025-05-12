@@ -1,0 +1,63 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Sphinx documentation
+docs/_build/
+
+# Environments
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Model and data files
+data/models/*
+data/voices/*
+data/cache/*
+!data/models/.gitkeep
+!data/voices/.gitkeep
+!data/cache/.gitkeep
+
+# Mock directories used in testing
+mock_cache_dir/
+mock_model_path/
+mock_voices_dir/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db

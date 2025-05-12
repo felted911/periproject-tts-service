@@ -1,0 +1,120 @@
+c:\Projects\peritest\python\venv\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0 -- C:\Projects\peritest\python\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+tests/unit/cache/test_error_handling.py::TestFileStorageErrorHandling::test_write_permission_error PASSED [ 10%]
+tests/unit/cache/test_error_handling.py::TestFileStorageErrorHandling::test_write_disk_full_error PASSED [ 20%]
+tests/unit/cache/test_error_handling.py::TestFileStorageErrorHandling::test_write_io_error PASSED [ 30%]
+tests/unit/cache/test_error_handling.py::TestMetadataManagerErrorHandling::test_save_serialization_error PASSED [ 40%]
+tests/unit/cache/test_error_handling.py::TestMetadataManagerErrorHandling::test_save_permission_error PASSED [ 50%]
+tests/unit/cache/test_error_handling.py::TestMetadataManagerErrorHandling::test_save_rename_error PASSED [ 60%]
+tests/unit/cache/test_error_handling.py::TestCacheManagerErrorHandling::test_set_with_write_error PASSED [ 70%]
+tests/unit/cache/test_error_handling.py::TestCacheManagerErrorHandling::test_set_with_metadata_error PASSED [ 80%]
+tests/unit/cache/test_error_handling.py::TestCacheManagerErrorHandling::test_set_with_disk_full_recovery PASSED [ 90%]
+tests/unit/cache/test_error_handling.py::TestCacheManagerErrorHandling::test_force_eviction FAILED [100%]
+
+================================== FAILURES ===================================
+______________ TestCacheManagerErrorHandling.test_force_eviction ______________
+
+self = <tests.unit.cache.test_error_handling.TestCacheManagerErrorHandling object at 0x000002202A056650>
+test_cache_dir = 'C:\\Users\\mgrab\\AppData\\Local\\Temp\\pytest-of-mgrab\\pytest-29\\test_force_eviction0\\cache'
+
+    @pytest.mark.asyncio
+    async def test_force_eviction(self, test_cache_dir):
+        """Test force eviction method."""
+        cache = CacheManager(
+            cache_dir=test_cache_dir,
+            enabled=True,
+            ttl=3600,
+            max_size=1024 * 1024,
+        )
+    
+        # Add some data to the cache
+        data1 = b"data1" * 100  # 500 bytes
+        data2 = b"data2" * 100  # 500 bytes
+    
+        # Mock the storage write method to simulate successful writes
+        async def mock_write(key, data):
+            file_path = await cache._storage.get_file_path(key)
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(file_path, 'wb') as f:
+                f.write(data)
+            return True
+    
+        # Mock the storage read method to simulate successful reads
+        async def mock_read(key):
+            file_path = await cache._storage.get_file_path(key)
+            if not file_path.exists():
+                return None
+            with open(file_path, 'rb') as f:
+                return f.read()
+    
+        with mock.patch.object(cache._storage, 'write', side_effect=mock_write):
+            # Setup the test data - use first 'read' implementation for setup
+            with mock.patch.object(cache._storage, 'read', side_effect=mock_read):
+                await cache.set("key1", data1)
+                await cache.set("key2", data2)
+    
+                # Update access time for key1 to make it older
+                cache._metadata.metadata["key1"]["last_accessed"] -= 100
+    
+                # Partially mock delete to avoid relying on storage implementation
+                original_delete = cache._storage.delete
+                deleted_keys = []
+    
+                async def mock_delete(key):
+                    deleted_keys.append(key)
+                    return await original_delete(key)
+    
+                # Switch to a custom read implementation for verification
+                async def mock_read_verification(key):
+                    if key == "key1":
+                        # key1 should be deleted by eviction
+                        return None
+                    elif key == "key2":
+                        # key2 should still be there
+                        return data2
+                    else:
+                        return None
+    
+                with mock.patch.object(cache._storage, 'delete', side_effect=mock_delete):
+                    with mock.patch.object(cache._storage, 'read', side_effect=mock_read_verification):
+                        # Force eviction of just enough space for one item
+                        await cache._force_eviction(500)  # Just enough to evict the oldest item (key1)
+    
+                        # Verify key1 was deleted and key2 was not
+                        assert "key1" in deleted_keys
+                        assert "key2" not in deleted_keys
+    
+                        # Verify key1 is no longer in cache but key2 is still there
+                        assert await cache.get("key1") is None
+>                       assert await cache.get("key2") == data2
+E                       AssertionError: assert None == b'data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2data2'
+
+tests\unit\cache\test_error_handling.py:289: AssertionError
+---------------------------- Captured stdout call -----------------------------
+[92mINFO[0m [src.tts_service.infrastructure.cache.cache_manager] Force-evicted 1 items to free 500 bytes
+------------------------------ Captured log call ------------------------------
+INFO     src.tts_service.infrastructure.cache.cache_manager:cache_manager.py:254 Force-evicted 1 items to free 500 bytes
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/cache/test_error_handling.py::TestCacheManagerErrorHandling::test_force_eviction
+=================== 1 failed, 9 passed, 2 warnings in 0.12s ===================

@@ -1,0 +1,242 @@
+name: Dev Environment CI/CD
+
+# Only run this workflow when pushing to the develop branch
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+# Prevent this workflow from running on main/master/production branches
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch is not production
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/heads/production" ]]; then
+            echo "ERROR: This workflow should not run on production branches"
+            exit 1
+          fi
+          echo "Branch check passed - proceeding with dev deployment"
+
+  validate:
+    needs: check-branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pylint mypy black isort
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Lint with flake8
+        run: flake8 src tests
+        
+      - name: Check formatting with black
+        run: black --check src tests
+        
+      - name: Type check with mypy
+        run: mypy src
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Run tests
+        run: pytest
+        
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/periproject/tts-service:${{ github.sha }}
+            ghcr.io/periproject/tts-service:dev-latest
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to development environment
+        run: |
+          echo "Deploying to DEV environment only"
+          echo "Version: ${{ github.sha }}"
+          
+          # Load development environment configuration
+          python config/environments/load_env.py development
+          
+          # Create deployment directory with necessary files
+          mkdir -p deploy
+          cp -r config deploy/
+          cp docker-compose.yml deploy/
+          cp requirements.txt deploy/
+          cp -r src deploy/
+          
+          # Create deployment-specific docker-compose.yml
+          cat > deploy/docker-compose.dev.yml << EOF
+          version: '3.8'
+          
+          services:
+            tts-service:
+              image: ghcr.io/periproject/tts-service:${{ github.sha }}
+              container_name: peri-tts-service-dev
+              ports:
+                - "8000:8000"
+              volumes:
+                - ./data:/app/data
+                - ./config:/app/config
+              environment:
+                - ENVIRONMENT=development
+                - API_HOST=0.0.0.0
+                - API_PORT=8000
+                - LOG_LEVEL=DEBUG
+                - KOKORO_USE_GPU=false
+              restart: unless-stopped
+          EOF
+          
+          # Add your deployment commands here
+          # For example:
+          # - SSH into dev server
+          # - Upload the deployment directory
+          # - Start the service with the new configuration
+          
+          # Example (replace with your actual deployment logic):
+          # scp -r deploy/ user@dev-server:/app/
+          # ssh user@dev-server "cd /app && \
+          #   docker-compose -f docker-compose.dev.yml pull && \
+          #   docker-compose -f docker-compose.dev.yml up -d"
+          
+      - name: Verify deployment
+        run: |
+          echo "Verifying DEV deployment"
+          
+          # Create a verification script
+          cat > verify_deployment.py << EOF
+          #!/usr/bin/env python
+          """
+          Verify that the TTS service deployment is functioning correctly.
+          """
+          import sys
+          import time
+          import requests
+          from requests.exceptions import RequestException
+          
+          DEV_SERVER_URL = "http://dev-server:8000"  # Replace with your actual dev server URL
+          MAX_RETRIES = 5
+          RETRY_DELAY = 10  # seconds
+          
+          def check_health():
+              """Check the health endpoint of the TTS service."""
+              try:
+                  response = requests.get(f"{DEV_SERVER_URL}/health")
+                  response.raise_for_status()
+                  data = response.json()
+                  return data.get("status") == "healthy"
+              except RequestException as e:
+                  print(f"Health check failed: {e}")
+                  return False
+          
+          def check_voices_endpoint():
+              """Check that the voices endpoint returns data."""
+              try:
+                  response = requests.get(f"{DEV_SERVER_URL}/api/v1/voices")
+                  response.raise_for_status()
+                  data = response.json()
+                  return len(data) > 0
+              except RequestException as e:
+                  print(f"Voices endpoint check failed: {e}")
+                  return False
+          
+          def verify_deployment():
+              """Verify the deployment is functioning correctly."""
+              for attempt in range(1, MAX_RETRIES + 1):
+                  print(f"Verification attempt {attempt}/{MAX_RETRIES}...")
+                  
+                  # Check health endpoint
+                  if not check_health():
+                      if attempt < MAX_RETRIES:
+                          print(f"Health check failed, retrying in {RETRY_DELAY} seconds...")
+                          time.sleep(RETRY_DELAY)
+                          continue
+                      return False
+                  
+                  # Check voices endpoint
+                  if not check_voices_endpoint():
+                      if attempt < MAX_RETRIES:
+                          print(f"Voices endpoint check failed, retrying in {RETRY_DELAY} seconds...")
+                          time.sleep(RETRY_DELAY)
+                          continue
+                      return False
+                  
+                  # All checks passed
+                  print("Deployment verification successful!")
+                  return True
+              
+              return False
+          
+          if __name__ == "__main__":
+              if not verify_deployment():
+                  print("Deployment verification failed!")
+                  sys.exit(1)
+          EOF
+          
+          # Make the script executable
+          chmod +x verify_deployment.py
+          
+          # NOTE: Uncomment the line below for actual verification on the dev server
+          # python verify_deployment.py
+          
+          # For now, we'll just exit successfully since this is a mock/example
+          echo "Deployment verification script created successfully."
+          echo "For actual deployment, customize the script with your dev server details and uncomment the execution line."
+          
+  # Explicitly NO production deploy job
+  # This ensures the code never gets deployed to production

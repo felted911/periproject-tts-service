@@ -1,0 +1,943 @@
+c:\Projects\peritest\python\venv\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0 -- C:\Projects\peritest\python\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+tests/integration/test_api.py::test_health_endpoint ERROR                [ 14%]
+tests/integration/test_api.py::test_api_docs_endpoint ERROR              [ 28%]
+tests/integration/test_api.py::test_get_voices ERROR                     [ 42%]
+tests/integration/test_api.py::test_get_voice ERROR                      [ 57%]
+tests/integration/test_api.py::test_get_voice_not_found ERROR            [ 71%]
+tests/integration/test_api.py::test_get_providers ERROR                  [ 85%]
+tests/integration/test_api.py::test_generate_speech ERROR                [100%]
+
+=================================== ERRORS ====================================
+___________________ ERROR at setup of test_health_endpoint ____________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E9337C3B60>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E9337C2F90>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9337C2E40>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E9337C3CB0>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9337C2E40>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E93382C050>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+__________________ ERROR at setup of test_api_docs_endpoint ___________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E9338E8050>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E9338E8190>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9338E82D0>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E9338E8910>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9338E82D0>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E9336CBBB0>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+______________________ ERROR at setup of test_get_voices ______________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E9338EAC10>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E9338EAD50>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9338EA850>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E9338EB250>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E9338EA850>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E9337897F0>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+______________________ ERROR at setup of test_get_voice _______________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E93382E9E0>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E93382E190>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E93382DE00>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E93382DF30>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E93382DE00>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E9337D3240>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+_________________ ERROR at setup of test_get_voice_not_found __________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E933C05810>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E933C056E0>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933C055B0>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E933C05A70>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933C055B0>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E933CD1E10>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+____________________ ERROR at setup of test_get_providers _____________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E9338239B0>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E93378A570>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933789D90>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E933823AD0>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933789D90>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E933767850>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+___________________ ERROR at setup of test_generate_speech ____________________
+
+test_tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001E933CD2690>
+test_cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001E933CD1150>
+test_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933CD08D0>
+test_tts_validator = <src.tts_service.api.validators.tts_validator.TTSRequestValidator object at 0x000001E933CD27A0>
+mock_providers = {'kokoro': <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001E933CD08D0>}
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001E933C21E50>
+
+    @pytest.fixture
+    def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch):
+        """Create a test client."""
+        # Set the global singleton instances directly
+        global _providers, _tts_service, _cache_manager
+        _providers = mock_providers
+        _tts_service = test_tts_service
+        _cache_manager = test_cache_manager
+    
+        # Ensure app has redirect_slashes enabled for trailing slash handling
+        app.redirect_slashes = True
+    
+        # Completely disable the lifespan to prevent the app from starting up
+        # and initializing its own TTS service
+        app.router.lifespan_context = None
+    
+        # Override dependencies for testing
+        async def override_get_cache_manager():
+            return test_cache_manager
+    
+        async def override_get_kokoro_provider():
+            return test_kokoro_provider
+    
+        # Important: Return the actual dictionary, not a Depends object
+        def override_get_providers():
+            return mock_providers
+    
+        async def override_get_tts_service():
+            return test_tts_service
+    
+        # Important: Must be in sync function since the original is sync
+        def override_get_tts_validator():
+            return test_tts_validator
+    
+        # Clear any previous overrides that might be lingering
+        app.dependency_overrides.clear()
+    
+        # Register all the overrides
+        app.dependency_overrides[get_cache_manager] = override_get_cache_manager
+        app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
+        app.dependency_overrides[get_providers] = override_get_providers
+        app.dependency_overrides[get_tts_service] = override_get_tts_service
+        app.dependency_overrides[get_tts_validator] = override_get_tts_validator
+    
+        # Return test client
+>       with TestClient(app) as client:
+
+tests\integration\conftest.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\Lib\site-packages\starlette\testclient.py:680: in __enter__
+    portal.call(self.wait_startup)
+venv\Lib\site-packages\anyio\from_thread.py:290: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:715: in wait_startup
+    await receive()
+venv\Lib\site-packages\starlette\testclient.py:706: in receive
+    self.task.result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Program Files\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+venv\Lib\site-packages\anyio\from_thread.py:221: in _call_func
+    retval = await retval_or_awaitable
+venv\Lib\site-packages\starlette\testclient.py:696: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+venv\Lib\site-packages\fastapi\applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+venv\Lib\site-packages\starlette\applications.py:112: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\errors.py:152: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\base.py:100: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\cors.py:77: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\middleware\exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:714: in __call__
+    await self.middleware_stack(scope, receive, send)
+venv\Lib\site-packages\starlette\routing.py:723: in app
+    await self.lifespan(scope, receive, send)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastapi.routing.APIRouter object at 0x000001E902DD19D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x000001E93358E510>, 'router': <fastapi.routing.APIRouter object at 0x000001E902DD19D0>, 'state': {}, 'type': 'lifespan'}
+receive = <bound method StapledObjectStream.receive of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjec...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+send = <bound method StapledObjectStream.send of StapledObjectStream(send_stream=MemoryObjectSendStream(_state=MemoryObjectSt...d_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True))>
+
+    async def lifespan(self, scope: Scope, receive: Receive, send: Send) -> None:
+        """
+        Handle ASGI lifespan messages, which allows us to manage application
+        startup and shutdown events.
+        """
+        started = False
+        app: typing.Any = scope.get("app")
+        await receive()
+        try:
+>           async with self.lifespan_context(app) as maybe_state:
+E           TypeError: 'NoneType' object is not callable
+
+venv\Lib\site-packages\starlette\routing.py:692: TypeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+tests/integration/test_api.py::test_health_endpoint
+  C:\Projects\peritest\python\src\tts_service\infrastructure\cache\cache_manager.py:444: DeprecationWarning: There is no current event loop
+    loop = asyncio.get_event_loop()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/integration/test_api.py::test_health_endpoint - TypeError: 'NoneT...
+ERROR tests/integration/test_api.py::test_api_docs_endpoint - TypeError: 'Non...
+ERROR tests/integration/test_api.py::test_get_voices - TypeError: 'NoneType' ...
+ERROR tests/integration/test_api.py::test_get_voice - TypeError: 'NoneType' o...
+ERROR tests/integration/test_api.py::test_get_voice_not_found - TypeError: 'N...
+ERROR tests/integration/test_api.py::test_get_providers - TypeError: 'NoneTyp...
+ERROR tests/integration/test_api.py::test_generate_speech - TypeError: 'NoneT...
+======================== 5 warnings, 7 errors in 0.55s ========================

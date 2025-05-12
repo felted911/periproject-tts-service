@@ -1,0 +1,300 @@
+c:\Projects\peritest\python\venv\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0 -- C:\Projects\peritest\python\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+tests/unit/test_kokoro_provider.py::test_initialization ERROR            [ 14%]
+tests/unit/test_kokoro_provider.py::test_get_voices ERROR                [ 28%]
+tests/unit/test_kokoro_provider.py::test_generate_speech ERROR           [ 42%]
+tests/unit/test_kokoro_provider.py::test_get_voice ERROR                 [ 57%]
+tests/unit/test_kokoro_provider.py::test_get_voice_not_found ERROR       [ 71%]
+tests/unit/test_kokoro_provider.py::test_is_available ERROR              [ 85%]
+tests/unit/test_kokoro_provider.py::test_get_features ERROR              [100%]
+
+=================================== ERRORS ====================================
+____________________ ERROR at setup of test_initialization ____________________
+
+mock_kokoro = <MagicMock id='1452810281920'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+______________________ ERROR at setup of test_get_voices ______________________
+
+mock_kokoro = <MagicMock id='1452810288304'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+___________________ ERROR at setup of test_generate_speech ____________________
+
+mock_kokoro = <MagicMock id='1452811127168'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+______________________ ERROR at setup of test_get_voice _______________________
+
+mock_kokoro = <MagicMock id='1452810288304'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+_________________ ERROR at setup of test_get_voice_not_found __________________
+
+mock_kokoro = <MagicMock id='1452811124816'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+_____________________ ERROR at setup of test_is_available _____________________
+
+mock_kokoro = <MagicMock id='1452810288304'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+_____________________ ERROR at setup of test_get_features _____________________
+
+mock_kokoro = <MagicMock id='1452811127840'>
+
+    @pytest.fixture
+    def mock_provider(mock_kokoro):
+        """Create a mock Kokoro TTS provider."""
+        # First, patch the Kokoro class in the model_handler module
+        with patch("src.tts_service.providers.kokoro.model_handler.Kokoro", return_value=mock_kokoro):
+            # Create the provider
+            provider = KokoroTTSProvider(
+                model_path="mock_model_path",
+                voices_dir="mock_voices_dir",
+                cache_dir="mock_cache_dir",
+                default_language="en-us",
+                use_gpu=False,
+            )
+    
+            # Mock the inner components
+            provider._model_handler.initialize = AsyncMock()
+            provider._model_handler._kokoro = mock_kokoro
+            provider._voice_manager.load_languages = AsyncMock()
+            provider._voice_manager.load_voices = AsyncMock()
+>           provider._voice_manager.voices = []
+E           AttributeError: property 'voices' of 'KokoroVoiceManager' object has no setter
+
+tests\unit\test_kokoro_provider.py:38: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/unit/test_kokoro_provider.py::test_initialization - AttributeErro...
+ERROR tests/unit/test_kokoro_provider.py::test_get_voices - AttributeError: p...
+ERROR tests/unit/test_kokoro_provider.py::test_generate_speech - AttributeErr...
+ERROR tests/unit/test_kokoro_provider.py::test_get_voice - AttributeError: pr...
+ERROR tests/unit/test_kokoro_provider.py::test_get_voice_not_found - Attribut...
+ERROR tests/unit/test_kokoro_provider.py::test_is_available - AttributeError:...
+ERROR tests/unit/test_kokoro_provider.py::test_get_features - AttributeError:...
+======================== 2 warnings, 7 errors in 0.09s ========================

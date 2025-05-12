@@ -1,0 +1,78 @@
+c:\Projects\peritest\python\venv\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.5.0 -- C:\Projects\peritest\python\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Projects\peritest\python
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-0.26.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/unit/test_tts_service.py::test_service_initialization PASSED       [ 20%]
+tests/unit/test_tts_service.py::test_get_all_voices PASSED               [ 40%]
+tests/unit/test_tts_service.py::test_generate_speech PASSED              [ 60%]
+tests/unit/test_tts_service.py::test_generate_speech_with_cache FAILED   [ 80%]
+tests/unit/test_tts_service.py::test_get_voice_not_found PASSED          [100%]
+
+================================== FAILURES ===================================
+_______________________ test_generate_speech_with_cache _______________________
+
+tts_service = <src.tts_service.services.tts_service.TTSService object at 0x000001281B066D70>
+mock_kokoro_provider = <src.tts_service.providers.kokoro.provider.KokoroTTSProvider object at 0x000001281B066650>
+cache_manager = <src.tts_service.infrastructure.cache.cache_manager.CacheManager object at 0x000001281B066780>
+
+    @pytest.mark.asyncio
+    async def test_generate_speech_with_cache(tts_service, mock_kokoro_provider, cache_manager):
+        """Test speech generation with cache hit."""
+        # Mock data
+        voice_id = "test_voice"
+        text = "Hello, world!"
+        cached_audio = b"cached audio data"
+    
+        # Mock cache manager
+        cache_manager.get = AsyncMock(return_value=cached_audio)  # Cache hit
+    
+        # Generate speech
+        result = await tts_service.generate_speech(text, voice_id)
+    
+        # Verify provider methods were not called
+>       mock_kokoro_provider.generate_speech.assert_not_called()
+E       AttributeError: 'function' object has no attribute 'assert_not_called'
+
+tests\unit\test_tts_service.py:116: AttributeError
+---------------------------- Captured stdout setup ----------------------------
+[92mINFO[0m [src.tts_service.providers.kokoro.model_handler] Kokoro model handler initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.voice_manager] Kokoro voice manager initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.audio_generator] Kokoro audio generator initialized
+[92mINFO[0m [src.tts_service.providers.kokoro.provider] Kokoro TTS provider initialized
+[92mINFO[0m [src.tts_service.services.tts_service] TTS service initialized
+----------------------------- Captured log setup ------------------------------
+INFO     src.tts_service.providers.kokoro.model_handler:model_handler.py:88 Kokoro model handler initialized
+INFO     src.tts_service.providers.kokoro.voice_manager:voice_manager.py:39 Kokoro voice manager initialized
+INFO     src.tts_service.providers.kokoro.audio_generator:audio_generator.py:40 Kokoro audio generator initialized
+INFO     src.tts_service.providers.kokoro.provider:provider.py:62 Kokoro TTS provider initialized
+INFO     src.tts_service.services.tts_service:tts_service.py:68 TTS service initialized
+---------------------------- Captured stdout call -----------------------------
+[92mINFO[0m [src.tts_service.services.tts_service] Using cached audio for key 'tts:203ccdfb7a1dc7e3d1ff1b9db0bfaded'
+------------------------------ Captured log call ------------------------------
+INFO     src.tts_service.services.tts_service:tts_service.py:254 Using cached audio for key 'tts:203ccdfb7a1dc7e3d1ff1b9db0bfaded'
+============================== warnings summary ===============================
+venv\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Projects\peritest\python\venv\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+src\tts_service\models\tts.py:31
+  C:\Projects\peritest\python\src\tts_service\models\tts.py:31: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    @validator("text")
+
+tests/unit/test_tts_service.py::test_service_initialization
+  C:\Projects\peritest\python\src\tts_service\infrastructure\cache\cache_manager.py:444: DeprecationWarning: There is no current event loop
+    loop = asyncio.get_event_loop()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/test_tts_service.py::test_generate_speech_with_cache - Attr...
+=================== 1 failed, 4 passed, 3 warnings in 0.09s ===================

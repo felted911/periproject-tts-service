@@ -1,0 +1,56 @@
+# Module initialization for infrastructure
+from .exceptions import (
+    TTSError, ValidationError, InvalidTextError, InvalidOptionsError,
+    ResourceError, ModelNotFoundError, VoiceNotFoundError,
+    ServiceError, ModelLoadError, GenerationFailedError,
+    InternalError, ConfigurationError, ProviderError,
+    ProviderNotAvailableError, CacheError, CacheIOError,
+    CachePermissionError, CacheDiskFullError, CacheMetadataError,
+    CacheSerializationError, CacheConcurrencyError
+)
+from .logging import get_logger, with_request_context
+from .cache import (
+    CacheManager, CacheManagerProtocol, CacheStorageProtocol,
+    CacheMetadataProtocol, EvictionPolicyProtocol,
+    FileStorage, MetadataManager, LRUEvictionPolicy, FIFOEvictionPolicy
+)
+
+__all__ = [
+    # Exceptions
+    "TTSError",
+    "ValidationError",
+    "InvalidTextError",
+    "InvalidOptionsError",
+    "ResourceError",
+    "ModelNotFoundError",
+    "VoiceNotFoundError",
+    "ServiceError",
+    "ModelLoadError",
+    "GenerationFailedError",
+    "InternalError",
+    "ConfigurationError",
+    "ProviderError",
+    "ProviderNotAvailableError",
+    "CacheError",
+    "CacheIOError",
+    "CachePermissionError",
+    "CacheDiskFullError",
+    "CacheMetadataError",
+    "CacheSerializationError",
+    "CacheConcurrencyError",
+    
+    # Logging
+    "get_logger",
+    "with_request_context",
+    
+    # Cache
+    "CacheManager",
+    "CacheManagerProtocol",
+    "CacheStorageProtocol",
+    "CacheMetadataProtocol",
+    "EvictionPolicyProtocol",
+    "FileStorage",
+    "MetadataManager",
+    "LRUEvictionPolicy",
+    "FIFOEvictionPolicy",
+]
