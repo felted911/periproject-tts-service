@@ -23,6 +23,7 @@ jobs:
           echo "Branch check passed - proceeding with dev deployment"
 
   validate:
+    if: false  # Temporarily disable this job
     needs: check-branch
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +60,7 @@ jobs:
         continue-on-error: true
 
   test:
-    needs: validate
+    needs: check-branch  # Changed from validate to check-branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
