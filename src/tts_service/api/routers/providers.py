@@ -16,7 +16,7 @@ async def get_providers(
     tts_service: TTSService = Depends(get_tts_service),
 ) -> List[ProviderInfo]:
     """Get information about all providers.
-    
+
     Returns:
         List of provider information
     """

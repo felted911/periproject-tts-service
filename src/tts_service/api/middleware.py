@@ -13,21 +13,21 @@ logger = get_logger(__name__)
 
 class RequestLoggerMiddleware(BaseHTTPMiddleware):
     """Middleware for logging requests and responses."""
-    
+
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request and log details.
-        
+
         Args:
             request: Request object
             call_next: Next middleware in the chain
-            
+
         Returns:
             Response object
         """
         # Generate request ID
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
-        
+
         # Log request
         logger.info(
             f"Request started: {request.method} {request.url.path}",
@@ -38,14 +38,14 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
                 "query_params": str(request.query_params),
             },
         )
-        
+
         # Start timer
         start_time = time.time()
-        
+
         try:
             # Process request
             response = await call_next(request)
-            
+
             # Log response
             duration_ms = round((time.time() - start_time) * 1000)
             logger.info(
@@ -58,12 +58,12 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
                     "duration_ms": duration_ms,
                 },
             )
-            
+
             # Add request ID to response headers
             response.headers["X-Request-ID"] = request_id
-            
+
             return response
-            
+
         except Exception as e:
             # Log exception
             duration_ms = round((time.time() - start_time) * 1000)

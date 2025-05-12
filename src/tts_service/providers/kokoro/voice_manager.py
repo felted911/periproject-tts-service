@@ -5,6 +5,7 @@ from pathlib import Path
 
 # Add parent directory to path for imports
 import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../")))
 
 from ...models import Voice, Language
@@ -16,14 +17,14 @@ logger = get_logger(__name__)
 
 class KokoroVoiceManager:
     """Manager for Kokoro TTS voices and languages."""
-    
+
     def __init__(
         self,
         provider_id: str,
         default_language: str = settings.KOKORO_SETTINGS["default_language"],
     ):
         """Initialize the voice manager.
-        
+
         Args:
             provider_id: Provider identifier
             default_language: Default language code
@@ -32,10 +33,10 @@ class KokoroVoiceManager:
         self._default_language = default_language
         self._voices: List[Voice] = []
         self._languages: List[Language] = []
-        
+
         # Voice metadata
         self._voice_metadata: Dict[str, Dict[str, Any]] = self._load_voice_metadata()
-        
+
         logger.info(
             f"Kokoro voice manager initialized",
             extra={
@@ -43,34 +44,34 @@ class KokoroVoiceManager:
                 "default_language": self._default_language,
             },
         )
-    
+
     @property
     def voices(self) -> List[Voice]:
         """Get available voices.
-        
+
         Returns:
             List of available voices
         """
         return self._voices
-    
+
     @property
     def languages(self) -> List[Language]:
         """Get supported languages.
-        
+
         Returns:
             List of supported languages
         """
         return self._languages
-    
+
     async def get_voice(self, voice_id: str) -> Voice:
         """Get voice by ID.
-        
+
         Args:
             voice_id: Voice identifier
-            
+
         Returns:
             Voice
-            
+
         Raises:
             VoiceNotFoundError: If voice not found
         """
@@ -78,20 +79,20 @@ class KokoroVoiceManager:
         if not voice:
             raise VoiceNotFoundError(f"Voice '{voice_id}' not found")
         return voice
-    
+
     async def load_voices(self) -> None:
         """Load available voices.
-        
+
         Raises:
             ModelLoadError: If voices cannot be loaded
         """
         try:
             voices = []
-            
+
             # Load voices from metadata
             for voice_id, metadata in self._voice_metadata.items():
                 language = metadata.get("language", self._default_language)
-                
+
                 voice = Voice(
                     id=voice_id,
                     name=metadata.get("name", voice_id),
@@ -106,21 +107,21 @@ class KokoroVoiceManager:
                         **metadata.get("meta", {}),
                     },
                 )
-                
+
                 voices.append(voice)
-            
+
             # Update voices
             self._voices = voices
-            
+
             logger.info(f"Loaded {len(voices)} voices")
-            
+
         except Exception as e:
             logger.exception(f"Failed to load voices: {str(e)}")
             raise ModelLoadError(f"Failed to load voices: {str(e)}")
-    
+
     async def load_languages(self) -> None:
         """Load available languages.
-        
+
         Raises:
             ModelLoadError: If languages cannot be loaded
         """
@@ -139,19 +140,19 @@ class KokoroVoiceManager:
                 Language(code="ko", name="Korean"),
                 Language(code="zh", name="Chinese"),
             ]
-            
+
             # Update languages
             self._languages = languages
-            
+
             logger.info(f"Loaded {len(languages)} languages")
-            
+
         except Exception as e:
             logger.exception(f"Failed to load languages: {str(e)}")
             raise ModelLoadError(f"Failed to load languages: {str(e)}")
-    
+
     def _load_voice_metadata(self) -> Dict[str, Dict[str, Any]]:
         """Load voice metadata from files.
-        
+
         Returns:
             Voice metadata
         """

@@ -1,0 +1,48 @@
+src\utils\download_models.py:4: error: Library stubs not installed for "requests"  [import-untyped]
+src\utils\download_models.py:4: note: Hint: "python3 -m pip install types-requests"
+src\utils\download_models.py:6: error: Library stubs not installed for "tqdm"  [import-untyped]
+src\utils\download_models.py:6: note: Hint: "python3 -m pip install types-tqdm"
+src\utils\download_models.py:68: error: Value of type "Collection[str]" is not indexable  [index]
+src\utils\download_models.py:78: error: Argument 1 to "download_file" has incompatible type "Collection[str]"; expected "str"  [arg-type]
+src\tts_service\infrastructure\logging.py:33: error: Item "None" of "type[BaseException] | None" has no attribute "__name__"  [union-attr]
+src\tts_service\infrastructure\cache\file_storage.py:5: error: Library stubs not installed for "aiofiles"  [import-untyped]
+src\tts_service\infrastructure\cache\file_storage.py:5: note: Hint: "python3 -m pip install types-aiofiles"
+src\tts_service\infrastructure\cache\file_storage.py:5: note: (or run "mypy --install-types" to install all missing stub packages)
+src\tts_service\infrastructure\cache\file_storage.py:5: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+src\tts_service\infrastructure\cache\metadata_manager.py:7: error: Library stubs not installed for "aiofiles"  [import-untyped]
+src\tts_service\infrastructure\cache\cache_manager.py:37: error: Incompatible default for argument "cache_dir" (default has type "Path", argument has type "str")  [assignment]
+src\tts_service\infrastructure\cache\cache_manager.py:234: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:239: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:411: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:417: error: Value of type "dict[str, Any] | None" is not indexable  [index]
+src\tts_service\infrastructure\cache\cache_manager.py:462: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:470: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:479: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\infrastructure\cache\cache_manager.py:483: error: "CacheMetadataProtocol" has no attribute "metadata"; maybe "get_metadata" or "set_metadata"?  [attr-defined]
+src\tts_service\providers\kokoro\voice_manager.py:132: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:133: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:134: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:135: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:136: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:137: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:138: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:139: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:140: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\voice_manager.py:141: error: Missing named argument "is_available" for "Language"  [call-arg]
+src\tts_service\providers\kokoro\model_handler.py:48: error: Cannot assign to a type  [misc]
+src\tts_service\providers\kokoro\model_handler.py:48: error: Incompatible types in assignment (expression has type "type[MockKokoro]", variable has type "type[Kokoro]")  [assignment]
+src\tts_service\providers\kokoro\audio_generator.py:4: error: Skipping analyzing "soundfile": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+src\main.py:16: error: Cannot find implementation or library stub for module named "tts_service.api"  [import-not-found]
+src\main.py:17: error: Cannot find implementation or library stub for module named "tts_service.infrastructure"  [import-not-found]
+src\main.py:18: error: Cannot find implementation or library stub for module named "tts_service.services"  [import-not-found]
+src\main.py:19: error: Cannot find implementation or library stub for module named "tts_service.api.dependencies"  [import-not-found]
+src\main.py:21: error: Cannot find implementation or library stub for module named "utils.download_models"  [import-not-found]
+src\tts_service\services\tts_service.py:142: error: Missing named argument "description" for "ProviderInfo"  [call-arg]
+src\tts_service\services\tts_service.py:156: error: Missing named argument "description" for "ProviderInfo"  [call-arg]
+src\tts_service\api\dependencies.py:12: error: Incompatible types in assignment (expression has type "None", variable has type "CacheManager")  [assignment]
+src\tts_service\api\dependencies.py:13: error: Incompatible types in assignment (expression has type "None", variable has type "TTSServiceProtocol")  [assignment]
+src\tts_service\api\dependencies.py:59: error: Incompatible return value type (got "TTSProvider", expected "KokoroTTSProvider")  [return-value]
+src\tts_service\api\routers\voices.py:30: error: Incompatible default for argument "provider_id" (default has type "None", argument has type "str")  [assignment]
+src\tts_service\api\routers\voices.py:30: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+src\tts_service\api\routers\voices.py:30: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+Found 40 errors in 12 files (checked 38 source files)

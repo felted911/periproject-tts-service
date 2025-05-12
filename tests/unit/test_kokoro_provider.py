@@ -29,17 +29,17 @@ def mock_provider(mock_kokoro):
             default_language="en-us",
             use_gpu=False,
         )
-        
+
         # Mock the inner components
         provider._model_handler.initialize = AsyncMock()
         provider._model_handler._kokoro = mock_kokoro
         provider._voice_manager.load_languages = AsyncMock()
         provider._voice_manager.load_voices = AsyncMock()
-        
+
         # Use private attributes instead of properties
         provider._voice_manager._voices = []
         provider._voice_manager._languages = []
-        
+
         yield provider
 
 
@@ -47,7 +47,7 @@ def mock_provider(mock_kokoro):
 async def test_initialization(mock_provider):
     """Test provider initialization."""
     await mock_provider.initialize()
-    
+
     # Verify initialization methods were called
     mock_provider._model_handler.initialize.assert_called_once()
     mock_provider._voice_manager.load_languages.assert_called_once()
@@ -58,14 +58,12 @@ async def test_initialization(mock_provider):
 async def test_get_voices(mock_provider):
     """Test getting voices."""
     # Set up mock voices
-    mock_voices = [
-        {"id": "test_voice", "name": "Test Voice", "language": "en-us"}
-    ]
+    mock_voices = [{"id": "test_voice", "name": "Test Voice", "language": "en-us"}]
     mock_provider._voice_manager._voices = mock_voices
-    
+
     # Get voices
     voices = await mock_provider.get_voices()
-    
+
     # Verify result
     assert voices == mock_voices
 
@@ -77,17 +75,17 @@ async def test_generate_speech(mock_provider, mock_kokoro):
     mock_voice = MagicMock()
     mock_voice.id = "test_voice"
     mock_voice.language = "en-us"
-    
+
     # Mock the voice manager to return our mock voice
     mock_provider._voice_manager.get_voice = AsyncMock(return_value=mock_voice)
-    
+
     # Generate speech
     result = await mock_provider.generate_speech(
         text="Hello, world!",
         voice_id="test_voice",
         options={"speed": 1.2, "format": "wav"},
     )
-    
+
     # The generate_speech method will now call _audio_generator.generate_speech
     # which eventually calls kokoro.create, so we check that
     mock_kokoro.create.assert_called_once()
@@ -96,7 +94,7 @@ async def test_generate_speech(mock_provider, mock_kokoro):
     assert call_args["voice"] == "test_voice"
     assert call_args["speed"] == 1.2
     assert call_args["lang"] == "en-us"
-    
+
     # Verify result
     assert result.format == AudioFormat.WAV
     assert result.audio_data is not None
@@ -109,13 +107,13 @@ async def test_get_voice(mock_provider):
     # Set up mock voice
     mock_voice = MagicMock()
     mock_voice.id = "test_voice"
-    
+
     # Mock the voice manager get_voice method
     mock_provider._voice_manager.get_voice = AsyncMock(return_value=mock_voice)
-    
+
     # Get voice
     voice = await mock_provider.get_voice("test_voice")
-    
+
     # Verify result
     assert voice == mock_voice
     mock_provider._voice_manager.get_voice.assert_called_once_with("test_voice")
@@ -126,7 +124,7 @@ async def test_get_voice_not_found(mock_provider):
     """Test getting a non-existent voice."""
     # Mock the voice manager to raise an error
     mock_provider._voice_manager.get_voice = AsyncMock(side_effect=VoiceNotFoundError("Voice not found"))
-    
+
     # Try to get non-existent voice
     with pytest.raises(VoiceNotFoundError):
         await mock_provider.get_voice("non_existent_voice")
@@ -138,7 +136,7 @@ async def test_is_available(mock_provider):
     # Set up mock model handler is_available method
     mock_provider._model_handler.is_available = AsyncMock(return_value=True)
     assert await mock_provider.is_available() is True
-    
+
     # Test unavailable
     mock_provider._model_handler.is_available = AsyncMock(return_value=False)
     assert await mock_provider.is_available() is False
@@ -147,7 +145,7 @@ async def test_is_available(mock_provider):
 def test_get_features(mock_provider):
     """Test getting supported features."""
     features = mock_provider.get_features()
-    
+
     # Verify result
     assert "multi_language" in features
     assert "voice_selection" in features

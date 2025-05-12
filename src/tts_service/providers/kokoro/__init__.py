@@ -11,7 +11,7 @@ __all__ = [
     "KokoroModelHandler",
     "KokoroAudioGenerator",
     "KokoroVoiceManagerProtocol",
-    "KokoroModelHandlerProtocol", 
+    "KokoroModelHandlerProtocol",
     "KokoroAudioGeneratorProtocol",
-    "MockKokoro"
+    "MockKokoro",
 ]

@@ -12,7 +12,7 @@ async def test_cache_set_get(cache_manager):
     data = b"test data"
     result = await cache_manager.set(key, data)
     assert result is True
-    
+
     # Get item
     cached_data = await cache_manager.get(key)
     assert cached_data == data
@@ -25,15 +25,15 @@ async def test_cache_delete(cache_manager):
     key = "test:key"
     data = b"test data"
     await cache_manager.set(key, data)
-    
+
     # Delete item
     result = await cache_manager.delete(key)
     assert result is True
-    
+
     # Try to get deleted item
     cached_data = await cache_manager.get(key)
     assert cached_data is None
-    
+
     # Try to delete non-existent item
     result = await cache_manager.delete("non:existent")
     assert result is False
@@ -45,11 +45,11 @@ async def test_cache_clear(cache_manager):
     # Set items
     await cache_manager.set("key1", b"data1")
     await cache_manager.set("key2", b"data2")
-    
+
     # Clear cache
     result = await cache_manager.clear()
     assert result is True
-    
+
     # Try to get items
     assert await cache_manager.get("key1") is None
     assert await cache_manager.get("key2") is None
@@ -61,10 +61,10 @@ async def test_cache_stats(cache_manager):
     # Set items
     await cache_manager.set("key1", b"data1")
     await cache_manager.set("key2", b"data2" * 100)  # Larger item
-    
+
     # Get stats
     stats = await cache_manager.get_stats()
-    
+
     # Check stats
     assert stats["enabled"] is True
     assert stats["count"] == 2
@@ -84,18 +84,18 @@ async def test_cache_expiration(cache_manager):
     )
     # For compatibility with existing tests
     short_ttl_cache._cache_dir = cache_manager._cache_dir
-    
+
     # Set item
     key = "test:expiration"
     data = b"test data"
     await short_ttl_cache.set(key, data)
-    
+
     # Verify item is there
     assert await short_ttl_cache.get(key) == data
-    
+
     # Wait for TTL to expire
     await asyncio.sleep(1.1)
-    
+
     # Item should be gone
     assert await short_ttl_cache.get(key) is None
 
@@ -112,13 +112,13 @@ async def test_cache_ensure_size(cache_manager):
     )
     # For compatibility with existing tests
     small_cache._cache_dir = cache_manager._cache_dir
-    
+
     # Set small item
     await small_cache.set("key1", b"data1")
-    
+
     # Set larger item to trigger eviction
     await small_cache.set("key2", b"data2" * 50)
-    
+
     # First item should be evicted
     assert await small_cache.get("key1") is None
     assert await small_cache.get("key2") is not None
@@ -136,23 +136,23 @@ async def test_cache_disabled(cache_manager):
     )
     # For compatibility with existing tests
     disabled_cache._cache_dir = cache_manager._cache_dir
-    
+
     # Set item
     result = await disabled_cache.set("key", b"data")
     assert result is False
-    
+
     # Get item
     cached_data = await disabled_cache.get("key")
     assert cached_data is None
-    
+
     # Delete item
     result = await disabled_cache.delete("key")
     assert result is False
-    
+
     # Clear cache
     result = await disabled_cache.clear()
     assert result is False
-    
+
     # Get stats
     stats = await disabled_cache.get_stats()
     assert stats["enabled"] is False

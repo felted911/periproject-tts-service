@@ -18,10 +18,10 @@ from src.tts_service.services import TTSService
 @pytest.fixture
 def test_cache_dir(tmp_path):
     """Create a temporary cache directory.
-    
+
     Args:
         tmp_path: Pytest temporary path
-        
+
     Returns:
         Path to temporary cache directory
     """
@@ -33,10 +33,10 @@ def test_cache_dir(tmp_path):
 @pytest.fixture
 def cache_manager(test_cache_dir):
     """Create a test cache manager.
-    
+
     Args:
         test_cache_dir: Temporary cache directory
-        
+
     Returns:
         Cache manager instance
     """
@@ -54,7 +54,7 @@ def cache_manager(test_cache_dir):
 @pytest.fixture
 def mock_kokoro_provider():
     """Create a mock Kokoro TTS provider.
-    
+
     Returns:
         Mock Kokoro TTS provider instance
     """
@@ -71,11 +71,11 @@ def mock_kokoro_provider():
 @pytest.fixture
 def tts_service(mock_kokoro_provider, cache_manager):
     """Create a test TTS service.
-    
+
     Args:
         mock_kokoro_provider: Mock Kokoro TTS provider
         cache_manager: Cache manager
-        
+
     Returns:
         TTS service instance
     """

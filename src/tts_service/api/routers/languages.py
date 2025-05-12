@@ -16,7 +16,7 @@ async def get_languages(
     tts_service: TTSService = Depends(get_tts_service),
 ) -> Dict[str, List[Language]]:
     """Get all supported languages from all providers.
-    
+
     Returns:
         Dictionary of provider ID to language list
     """

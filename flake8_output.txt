@@ -1,0 +1,20 @@
+src\tts_service\api\dependencies.py:46:5: F824 `global _providers` is unused: name is never assigned in scope
+src\tts_service\api\validators\tts_validator.py:15:1: E302 expected 2 blank lines, found 1
+src\tts_service\infrastructure\logging.py:55:31: E261 at least two spaces before inline comment
+src\tts_service\infrastructure\logging.py:57:39: E261 at least two spaces before inline comment
+src\tts_service\providers\kokoro\model_handler.py:18:1: E302 expected 2 blank lines, found 1
+src\tts_service\providers\kokoro\model_handler.py:42:1: E305 expected 2 blank lines after class or function definition, found 1
+src\utils\download_models.py:14:1: E302 expected 2 blank lines, found 1
+src\utils\download_models.py:48:1: E302 expected 2 blank lines, found 1
+src\utils\download_models.py:75:1: E305 expected 2 blank lines after class or function definition, found 1
+tests\integration\conftest.py:105:1: E302 expected 2 blank lines, found 1
+tests\unit\kokoro\test_voice_manager.py:58:38: E741 ambiguous variable name 'l'
+tests\unit\kokoro\test_voice_manager.py:59:24: E741 ambiguous variable name 'l'
+tests\unit\test_cache_components.py:53:1: E302 expected 2 blank lines, found 1
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:199:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:358:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:403:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:519:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:632:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_cache_manager.py:643:5: E306 expected 1 blank line before a nested definition, found 0
+tests\unit\tts_service\infrastructure\cache\test_metadata_manager.py:238:5: E306 expected 1 blank line before a nested definition, found 0

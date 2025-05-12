@@ -22,6 +22,7 @@ sys.path.insert(0, str(project_root))
 
 try:
     from kokoro_onnx import Kokoro
+
     KOKORO_AVAILABLE = True
     print("✅ kokoro_onnx module found")
 except ImportError:
@@ -45,7 +46,7 @@ kokoro = None
 
 class TTSRequest(BaseModel):
     """Request model for TTS endpoint."""
-    
+
     text: str
     voice: str = "af_heart"
     speed: float = 1.0
@@ -56,21 +57,21 @@ class TTSRequest(BaseModel):
 async def startup_event():
     """Initialize Kokoro on startup."""
     global kokoro
-    
+
     if not KOKORO_AVAILABLE:
         print("Kokoro ONNX module not available. Please install with:")
         print("  pip install kokoro-onnx")
         return
-    
+
     # Check if files exist
     if not MODEL_PATH.exists():
         print(f"Model file not found: {MODEL_PATH}")
         return
-    
+
     if not VOICES_PATH.exists():
         print(f"Voices file not found: {VOICES_PATH}")
         return
-    
+
     try:
         kokoro = Kokoro(str(MODEL_PATH), str(VOICES_PATH))
         print("✅ Kokoro initialized successfully")
@@ -95,29 +96,26 @@ async def text_to_speech(request: TTSRequest):
     """Generate speech from text."""
     if kokoro is None:
         raise HTTPException(status_code=503, detail="TTS service not available")
-    
+
     try:
         # Generate speech
         samples, sample_rate = kokoro.create(
-            text=request.text,
-            voice=request.voice,
-            speed=request.speed,
-            lang=request.lang
+            text=request.text, voice=request.voice, speed=request.speed, lang=request.lang
         )
-        
+
         # Convert to WAV
         with io.BytesIO() as wav_buffer:
-            sf.write(wav_buffer, samples, sample_rate, format='WAV')
+            sf.write(wav_buffer, samples, sample_rate, format="WAV")
             wav_buffer.seek(0)
             audio_data = wav_buffer.read()
-        
+
         # Return WAV audio
         return Response(
             content=audio_data,
             media_type="audio/wav",
             headers={
                 "Content-Disposition": f'attachment; filename="speech.wav"',
-            }
+            },
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate speech: {str(e)}")

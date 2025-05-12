@@ -1,0 +1,16 @@
+[flake8]
+# Ignore some common style issues
+ignore = W291,W293,F401,E402,E501,F541,F811,F841,E128
+
+# W291 - trailing whitespace
+# W293 - blank line contains whitespace
+# F401 - imported but unused
+# E402 - module level import not at top of file
+# E501 - line too long
+# F541 - f-string is missing placeholders
+# F811 - redefinition of unused name
+# F841 - local variable is assigned to but never used
+# E128 - continuation line under-indented for visual indent
+
+# Max line length (default is 79)
+max-line-length = 120

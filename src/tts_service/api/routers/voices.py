@@ -17,7 +17,7 @@ async def get_voices(
     tts_service: TTSService = Depends(get_tts_service),
 ) -> Dict[str, List[Voice]]:
     """Get all available voices from all providers.
-    
+
     Returns:
         Dictionary of provider ID to voice list
     """
@@ -31,14 +31,14 @@ async def get_voice(
     tts_service: TTSService = Depends(get_tts_service),
 ) -> Voice:
     """Get voice by ID.
-    
+
     Args:
         voice_id: Voice ID
         provider_id: Provider ID (optional)
-        
+
     Returns:
         Voice
-        
+
     Raises:
         HTTPException: If voice not found or provider not available
     """

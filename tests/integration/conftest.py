@@ -17,8 +17,17 @@ sys.path.insert(0, str(project_path))
 # Import after path setup
 from config import settings
 from src.main import app
+
 # Import the internal module variables to directly manipulate them
-from src.tts_service.api.dependencies import get_cache_manager, get_kokoro_provider, get_tts_service, get_providers, _providers, _tts_service, _cache_manager
+from src.tts_service.api.dependencies import (
+    get_cache_manager,
+    get_kokoro_provider,
+    get_tts_service,
+    get_providers,
+    _providers,
+    _tts_service,
+    _cache_manager,
+)
 from src.tts_service.api.routers.tts import get_tts_validator
 from src.tts_service.infrastructure import CacheManager
 from src.tts_service.providers import KokoroTTSProvider, TTSProvider
@@ -32,7 +41,7 @@ from src.tts_service.providers.kokoro.audio_generator import KokoroAudioGenerato
 @pytest.fixture(scope="session")
 def event_loop():
     """Create an instance of the default event loop for the test session.
-    
+
     This ensures a consistent event loop across all tests and prevents warnings.
     """
     policy = asyncio.get_event_loop_policy()
@@ -66,15 +75,15 @@ def test_kokoro_provider():
     # Create mocked components
     model_handler = MagicMock(spec=KokoroModelHandler)
     model_handler.is_available = AsyncMock(return_value=True)
-    
+
     voice_manager = MagicMock(spec=KokoroVoiceManager)
     voice_manager.voices = []
     voice_manager.languages = []
     voice_manager.get_voice = AsyncMock()
-    
+
     audio_generator = MagicMock(spec=KokoroAudioGenerator)
     audio_generator.generate_speech = AsyncMock()
-    
+
     # Create the provider with mocked components
     provider = KokoroTTSProvider(
         model_path="mock_model_path",
@@ -83,15 +92,15 @@ def test_kokoro_provider():
         default_language="en-us",
         use_gpu=False,
     )
-    
+
     # Replace the internal components with our mocks
     provider._model_handler = model_handler
     provider._voice_manager = voice_manager
     provider._audio_generator = audio_generator
-    
+
     # Mock key methods
     provider.is_available = AsyncMock(return_value=True)
-    
+
     return provider
 
 
@@ -101,6 +110,7 @@ def mock_providers(test_kokoro_provider):
     # Create a dictionary that can be passed directly to the TTSService
     # Use the fixture as a parameter, not calling it directly
     return {"kokoro": test_kokoro_provider}
+
 
 @pytest.fixture
 def test_tts_service(mock_providers, test_cache_manager):
@@ -126,7 +136,7 @@ def test_app():
     from src.main import http_exception_handler, general_exception_handler
     from config import settings
     from fastapi import HTTPException
-    
+
     # Create test app without lifespan
     test_app = FastAPI(
         title="Peri TTS Service Test",
@@ -138,7 +148,7 @@ def test_app():
         # Ensure URLs work with or without trailing slashes
         redirect_slashes=True,
     )
-    
+
     # Add CORS middleware
     test_app.add_middleware(
         CORSMiddleware,
@@ -147,71 +157,79 @@ def test_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Add request logger middleware
     test_app.add_middleware(RequestLoggerMiddleware)
-    
+
     # Include API router
     test_app.include_router(api_router, prefix=settings.API_PREFIX)
-    
+
     # Add error handlers
     test_app.exception_handler(HTTPException)(http_exception_handler)
     test_app.exception_handler(Exception)(general_exception_handler)
-    
+
     # Add health check endpoint
     @test_app.get("/health")
     async def health_check():
         """Health check endpoint."""
         return {"status": "healthy"}
-    
+
     return test_app
 
 
 @pytest.fixture
-def client(test_tts_service, test_cache_manager, test_kokoro_provider, test_tts_validator, mock_providers, monkeypatch, test_app):
+def client(
+    test_tts_service,
+    test_cache_manager,
+    test_kokoro_provider,
+    test_tts_validator,
+    mock_providers,
+    monkeypatch,
+    test_app,
+):
     """Create a test client."""
     # Set the global singleton instances directly
     global _providers, _tts_service, _cache_manager
     _providers = mock_providers
     _tts_service = test_tts_service
     _cache_manager = test_cache_manager
-    
+
     # Ensure app has redirect_slashes enabled for trailing slash handling
     test_app.redirect_slashes = True
-    
+
     # Override dependencies for testing
     async def override_get_cache_manager():
         return test_cache_manager
-    
+
     async def override_get_kokoro_provider():
         return test_kokoro_provider
-    
+
     # Important: Return the actual dictionary, not a Depends object
     def override_get_providers():
         return mock_providers
-    
+
     async def override_get_tts_service():
         return test_tts_service
-        
+
     # Important: Must be in sync function since the original is sync
     def override_get_tts_validator():
         return test_tts_validator
-    
+
     # Clear any previous overrides that might be lingering
     test_app.dependency_overrides.clear()
-    
+
     # Register all the overrides
     test_app.dependency_overrides[get_cache_manager] = override_get_cache_manager
     test_app.dependency_overrides[get_kokoro_provider] = override_get_kokoro_provider
     test_app.dependency_overrides[get_providers] = override_get_providers
     test_app.dependency_overrides[get_tts_service] = override_get_tts_service
     test_app.dependency_overrides[get_tts_validator] = override_get_tts_validator
-    
+
     # Set up FastAPI test client without lifespan events
     client = TestClient(test_app, raise_server_exceptions=False)
-    
+
     # Return the client
     yield client
-    
+
     # Clean up
     test_app.dependency_overrides.clear()
